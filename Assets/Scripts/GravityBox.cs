@@ -11,32 +11,17 @@ public class GravityBox : GravitySource
 
 	[SerializeField, Min(0f)]
 	float innerDistance = 0f, innerFalloffDistance = 0f;
-	
+
 	[SerializeField, Min(0f)]
 	float outerDistance = 0f, outerFalloffDistance = 0f;
 
 	float innerFalloffFactor, outerFalloffFactor;
 
-	void Awake()
-	{
-		OnValidate();
-	}
-
-	void OnValidate()
-	{
-		boundaryDistance = Vector3.Max(boundaryDistance, Vector3.zero);
-		float maxInner = Mathf.Min( Mathf.Min(boundaryDistance.x, boundaryDistance.y), boundaryDistance.z );
-		innerDistance = Mathf.Min(innerDistance, maxInner);
-		innerFalloffDistance = Mathf.Max(Mathf.Min(innerFalloffDistance, maxInner), innerDistance);
-		outerFalloffDistance = Mathf.Max(outerFalloffDistance, outerDistance);
-
-		innerFalloffFactor = 1f / (innerFalloffDistance - innerDistance);
-		outerFalloffFactor = 1f / (outerFalloffDistance - outerDistance);
-	}
-
 	public override Vector3 GetGravity(Vector3 position)
 	{
-		position = transform.InverseTransformDirection(position - transform.position);
+		position =
+			transform.InverseTransformDirection(position - transform.position);
+
 		Vector3 vector = Vector3.zero;
 		int outside = 0;
 		if (position.x > boundaryDistance.x)
@@ -71,10 +56,12 @@ public class GravityBox : GravitySource
 			vector.z = -boundaryDistance.z - position.z;
 			outside += 1;
 		}
+		
 
 		if (outside > 0)
 		{
-			float distance = outside == 1 ? Mathf.Abs(vector.x + vector.y + vector.z) : vector.magnitude;
+			float distance = outside == 1 ?
+				Mathf.Abs(vector.x + vector.y + vector.z) : vector.magnitude;
 			if (distance > outerFalloffDistance)
 			{
 				return Vector3.zero;
@@ -86,7 +73,6 @@ public class GravityBox : GravitySource
 			}
 			return transform.TransformDirection(g * vector);
 		}
-
 
 		Vector3 distances;
 		distances.x = boundaryDistance.x - Mathf.Abs(position.x);
@@ -114,7 +100,6 @@ public class GravityBox : GravitySource
 		return transform.TransformDirection(vector);
 	}
 
-
 	float GetGravityComponent(float coordinate, float distance)
 	{
 		if (distance > innerFalloffDistance)
@@ -127,6 +112,26 @@ public class GravityBox : GravitySource
 			g *= 1f - (distance - innerDistance) * innerFalloffFactor;
 		}
 		return coordinate > 0f ? -g : g;
+	}
+
+	void Awake()
+	{
+		OnValidate();
+	}
+
+	void OnValidate()
+	{
+		boundaryDistance = Vector3.Max(boundaryDistance, Vector3.zero);
+		float maxInner = Mathf.Min(
+			Mathf.Min(boundaryDistance.x, boundaryDistance.y), boundaryDistance.z
+		);
+		innerDistance = Mathf.Min(innerDistance, maxInner);
+		innerFalloffDistance =
+			Mathf.Max(Mathf.Min(innerFalloffDistance, maxInner), innerDistance);
+		outerFalloffDistance = Mathf.Max(outerFalloffDistance, outerDistance);
+
+		innerFalloffFactor = 1f / (innerFalloffDistance - innerDistance);
+		outerFalloffFactor = 1f / (outerFalloffDistance - outerDistance);
 	}
 
 	void OnDrawGizmos()
@@ -152,8 +157,6 @@ public class GravityBox : GravitySource
 		}
 		Gizmos.color = Color.red;
 		Gizmos.DrawWireCube(Vector3.zero, 2f * boundaryDistance);
-
-
 		if (outerDistance > 0f)
 		{
 			Gizmos.color = Color.yellow;
@@ -164,14 +167,6 @@ public class GravityBox : GravitySource
 			Gizmos.color = Color.cyan;
 			DrawGizmosOuterCube(outerFalloffDistance);
 		}
-	}
-
-	void DrawGizmosRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
-	{
-		Gizmos.DrawLine(a, b);
-		Gizmos.DrawLine(b, c);
-		Gizmos.DrawLine(c, d);
-		Gizmos.DrawLine(d, a);
 	}
 
 	void DrawGizmosOuterCube(float distance)
@@ -210,5 +205,13 @@ public class GravityBox : GravitySource
 		size.y = 2f * (size.y + distance);
 		size.z = 2f * (size.z + distance);
 		Gizmos.DrawWireCube(Vector3.zero, size);
+	}
+
+	void DrawGizmosRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+	{
+		Gizmos.DrawLine(a, b);
+		Gizmos.DrawLine(b, c);
+		Gizmos.DrawLine(c, d);
+		Gizmos.DrawLine(d, a);
 	}
 }
